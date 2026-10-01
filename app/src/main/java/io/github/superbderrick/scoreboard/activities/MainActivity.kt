@@ -106,7 +106,7 @@ class MainActivity : Activity() {
 
     private fun name(side: Side): String {
         val text = (if (side == Side.LEFT) leftName else rightName).text.toString().trim()
-        return if (text.isNotEmpty()) text else if (side == Side.LEFT) "左" else "右"
+        return if (text.isNotEmpty()) text else if (side == Side.LEFT) "Home" else "Guest"
     }
 
     private fun addRally(rally: Rally) {
