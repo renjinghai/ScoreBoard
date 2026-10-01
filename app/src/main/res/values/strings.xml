@@ -40,4 +40,5 @@
     <string name="calibrate_message">将清除 %1$d 个没看清的球,比分改为你输入的值。已记录的得分:%2$d : %3$d</string>
     <string name="calibrate_invalid">比分不合理,或比已记录的得分还低(记错了的话请先撤销)</string>
     <string name="calibrate_none">没有没看清的球</string>
+    <string name="swap_server">换发球</string>
 </resources>
