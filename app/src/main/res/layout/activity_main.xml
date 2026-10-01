@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:background="@color/colorTouch"
-                android:hint="User1"
+                android:hint="@string/user_first"
                 android:textAlignment="center"
                 android:textColor="@color/colorTextviewBackground"
                 android:textColorHint="@color/colorTextviewBackground" />
