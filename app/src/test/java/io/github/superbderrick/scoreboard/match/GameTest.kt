@@ -15,6 +15,17 @@ class GameTest {
     }
 
     @Test
+    fun eachServerServesTwoBallsThenOneInDeuce() {
+        assertEquals(listOf(1, 2, 1, 2, 1), (0..4).map { game("L".repeat(it)).serveNumber })
+        assertFalse(game("L".repeat(19)).isDeuceServing)
+        val deuce = game("LR".repeat(10))
+        assertTrue(deuce.isDeuceServing)
+        assertEquals(1, deuce.serveNumber)
+        deuce.add(Rally.LEFT)
+        assertEquals(1, deuce.serveNumber)
+    }
+
+    @Test
     fun serverChangesEveryBallAfterTenAll() {
         val g = game("LR".repeat(10)) // 10:10, 20 balls played
         assertEquals(Side.LEFT, g.server)
