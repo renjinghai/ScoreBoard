@@ -15,3 +15,9 @@
 
 <br><br>
 
+
+## Builds
+
+GitHub Actions builds and tests every push to `master` and every pull request targeting `master` (`.github/workflows/android.yml`); it can also be started manually from the Actions tab.
+Download the debug APK from the **Artifacts** section of a run on the Actions tab.
+Pushing a tag such as `v1.1.0` also publishes the APK as a GitHub Release.
