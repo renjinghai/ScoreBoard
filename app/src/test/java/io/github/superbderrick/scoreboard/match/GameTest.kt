@@ -118,4 +118,69 @@ class GameTest {
     fun encodeDecodeRoundTrip() {
         assertEquals("LR?L", game("LR?L").encode())
     }
+
+    @Test
+    fun calibrateFillsUnknownsAndAddsMissedBalls() {
+        val g = game("L?R?")
+        assertTrue(g.calibrate(3, 2))
+        assertEquals(3, g.leftScore)
+        assertEquals(2, g.rightScore)
+        assertEquals(0, g.unknownCount)
+        assertEquals(5, g.ballsPlayed)
+    }
+
+    @Test
+    fun calibrateDropsSurplusUnknownBalls() {
+        val g = game("L?R?")
+        assertTrue(g.calibrate(1, 1))
+        assertEquals("LR", g.encode())
+    }
+
+    @Test
+    fun calibrateKeepsKnownBallsInPlace() {
+        val g = game("L?R")
+        assertTrue(g.calibrate(1, 2))
+        assertEquals("LRR", g.encode())
+    }
+
+    @Test
+    fun calibrateSetsServeFromRealScore() {
+        val g = game("L?")
+        assertEquals(Side.RIGHT, g.server)
+        assertTrue(g.calibrate(2, 2)) // 4 balls played
+        assertEquals(Side.LEFT, g.server)
+        assertEquals(1, g.serveNumber)
+    }
+
+    @Test
+    fun calibrateRejectsScoreBelowKnownPoints() {
+        val g = game("LL?")
+        assertFalse(g.calibrate(1, 0))
+        assertEquals("LL?", g.encode())
+    }
+
+    @Test
+    fun calibrateRejectsImpossibleScore() {
+        val g = game("L?")
+        assertFalse(g.calibrate(13, 5))
+        assertFalse(g.calibrate(14, 11))
+        assertEquals("L?", g.encode())
+    }
+
+    @Test
+    fun calibrateCanFinishTheGame() {
+        val g = game("L".repeat(9) + "?")
+        assertTrue(g.calibrate(11, 3))
+        assertEquals(Game.Status.OVER, g.status)
+        assertEquals(Side.LEFT, g.winner)
+    }
+
+    @Test
+    fun validScores() {
+        assertTrue(Game.isValidScore(11, 11))
+        assertTrue(Game.isValidScore(12, 10))
+        assertTrue(Game.isValidScore(11, 0))
+        assertFalse(Game.isValidScore(12, 9))
+        assertFalse(Game.isValidScore(-1, 0))
+    }
 }

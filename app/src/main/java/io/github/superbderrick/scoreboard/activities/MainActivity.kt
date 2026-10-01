@@ -7,7 +7,9 @@ import android.preference.PreferenceManager
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.text.InputType
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
@@ -40,6 +42,7 @@ class MainActivity : Activity() {
     private lateinit var rightServe: TextView
     private lateinit var statusText: TextView
     private lateinit var unknownButton: Button
+    private lateinit var calibrateButton: Button
 
     private lateinit var match: Match
     private var clickedSettingButton = false
@@ -74,6 +77,8 @@ class MainActivity : Activity() {
         rightServe = findViewById(R.id.rightServeIndicator)
         statusText = findViewById(R.id.statusText)
         unknownButton = findViewById(R.id.unknownButton)
+        calibrateButton = findViewById(R.id.calibrateButton)
+        calibrateButton.setOnClickListener { showCalibrate() }
 
         findViewById<TouchLayout>(R.id.leftUpperTouchView).setOnClickListener { addRally(Rally.LEFT) }
         findViewById<TouchLayout>(R.id.rightUpperTouchView).setOnClickListener { addRally(Rally.RIGHT) }
@@ -141,7 +146,7 @@ class MainActivity : Activity() {
 
         val unknown = game.unknownCount
         statusText.text = if (unknown > 0) getString(R.string.pending_count, unknown) else ""
-        unknownButton.text = getString(R.string.unknown_ball)
+        calibrateButton.visibility = if (unknown > 0) View.VISIBLE else View.GONE
     }
 
     private fun checkGameEnd() {
@@ -212,6 +217,55 @@ class MainActivity : Activity() {
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()
+    }
+
+    /** Someone told us the real score: clear the unknown balls and set the score they give. */
+    private fun showCalibrate() {
+        val game = match.currentGame
+        if (game.unknownCount == 0) {
+            Toast.makeText(this, R.string.calibrate_none, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val leftInput = scoreInput(game.leftScore)
+        val rightInput = scoreInput(game.rightScore)
+        val row = LinearLayout(this)
+        row.orientation = LinearLayout.HORIZONTAL
+        row.setPadding(48, 16, 48, 0)
+        for ((side, input) in listOf(Side.LEFT to leftInput, Side.RIGHT to rightInput)) {
+            val column = LinearLayout(this)
+            column.orientation = LinearLayout.VERTICAL
+            val label = TextView(this)
+            label.text = name(side)
+            column.addView(label)
+            column.addView(input)
+            row.addView(column, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
+        AlertDialog.Builder(this)
+                .setTitle(R.string.calibrate_title)
+                .setMessage(getString(R.string.calibrate_message,
+                        game.unknownCount, game.leftScore, game.rightScore))
+                .setView(row)
+                .setPositiveButton(R.string.ok) { _, _ ->
+                    val left = leftInput.text.toString().toIntOrNull()
+                    val right = rightInput.text.toString().toIntOrNull()
+                    if (left != null && right != null && game.calibrate(left, right)) {
+                        refresh()
+                        checkGameEnd()
+                    } else {
+                        Toast.makeText(this, R.string.calibrate_invalid, Toast.LENGTH_LONG).show()
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+    }
+
+    private fun scoreInput(initial: Int): EditText {
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_NUMBER
+        input.setText(initial.toString())
+        input.setSelection(input.text.length)
+        input.gravity = android.view.Gravity.CENTER
+        return input
     }
 
     private fun confirmReset() {
