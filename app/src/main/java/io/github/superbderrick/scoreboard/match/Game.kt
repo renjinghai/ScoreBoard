@@ -76,6 +76,41 @@ class Game(val firstServer: Side = Side.LEFT) {
         return true
     }
 
+    /**
+     * The scorer has been told the real score: drop all unknown balls and make the game match
+     * [left]:[right]. The total number of balls becomes left + right, so the serve order follows
+     * the real score. Which unknown ball went to whom is not known, so the order of the filled-in
+     * balls is arbitrary.
+     *
+     * Returns false (and changes nothing) if the score is not a possible game score, or is lower
+     * than the points already recorded for a player.
+     */
+    fun calibrate(left: Int, right: Int): Boolean {
+        if (!isValidScore(left, right) || left < leftScore || right < rightScore) return false
+        var needLeft = left - leftScore
+        var needRight = right - rightScore
+        val fill = ArrayList<Rally>()
+        while (needLeft > 0 || needRight > 0) {
+            if (needLeft >= needRight) {
+                fill.add(Rally.LEFT)
+                needLeft--
+            } else {
+                fill.add(Rally.RIGHT)
+                needRight--
+            }
+        }
+        val result = ArrayList<Rally>()
+        var next = 0
+        for (b in balls) {
+            if (b != Rally.UNKNOWN) result.add(b)
+            else if (next < fill.size) result.add(fill[next++])
+        }
+        while (next < fill.size) result.add(fill[next++])
+        balls.clear()
+        balls.addAll(result)
+        return true
+    }
+
     /** True if some fully known prefix of [seq] (shorter than [seq]) already ends the game. */
     private fun endsEarly(seq: List<Rally>): Boolean {
         var l = 0
@@ -96,6 +131,12 @@ class Game(val firstServer: Side = Side.LEFT) {
     companion object {
         const val WIN_SCORE = 11
         private const val DEUCE_BALLS = 20
+
+        /** A score a game can actually be in: past 11 the two players are never more than 2 apart. */
+        fun isValidScore(a: Int, b: Int): Boolean {
+            if (a < 0 || b < 0) return false
+            return maxOf(a, b) <= WIN_SCORE || Math.abs(a - b) <= 2
+        }
 
         fun isWin(a: Int, b: Int): Boolean = maxOf(a, b) >= WIN_SCORE && Math.abs(a - b) >= 2
 

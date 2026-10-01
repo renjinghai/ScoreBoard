@@ -35,4 +35,9 @@
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="history_empty">还没有记录</string>
+    <string name="calibrate">校准比分</string>
+    <string name="calibrate_title">输入当前正确的比分</string>
+    <string name="calibrate_message">将清除 %1$d 个没看清的球,比分改为你输入的值。已记录的得分:%2$d : %3$d</string>
+    <string name="calibrate_invalid">比分不合理,或比已记录的得分还低(记错了的话请先撤销)</string>
+    <string name="calibrate_none">没有没看清的球</string>
 </resources>

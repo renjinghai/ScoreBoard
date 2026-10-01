@@ -185,6 +185,16 @@
                 android:textColor="@color/colorDe"
                 android:textSize="16sp" />
 
+            <Button
+                android:id="@+id/calibrateButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/statusText"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dip"
+                android:text="@string/calibrate"
+                android:visibility="gone" />
+
             <View
                 android:id="@+id/centerbar"
                 android:layout_width="80dip"
