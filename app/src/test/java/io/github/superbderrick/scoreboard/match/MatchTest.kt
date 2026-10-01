@@ -70,4 +70,52 @@ class MatchTest {
     fun decodeGarbageReturnsNull() {
         assertNull(Match.decode("nonsense"))
     }
+
+    @Test
+    fun swapServerFlipsCurrentServer() {
+        val m = Match(2, Side.LEFT)
+        m.addRally(Rally.LEFT)
+        assertEquals(Side.LEFT, m.currentGame.server)
+        assertTrue(m.swapServer())
+        assertEquals(Side.RIGHT, m.currentGame.server)
+        assertEquals(2, m.currentGame.serveNumber) // 1 ball played: second ball of this server's turn
+    }
+
+    @Test
+    fun swapServerKeepsTwoBallRotationAndNextGameAlternates() {
+        val m = Match(2, Side.LEFT)
+        m.addRally(Rally.LEFT)
+        m.addRally(Rally.LEFT)
+        m.swapServer() // right now serves ball 3
+        assertEquals(Side.LEFT, m.currentGame.server) // 2 balls played: other side than first (now RIGHT) -> LEFT
+        repeat(9) { m.addRally(Rally.LEFT) }
+        assertTrue(m.canStartNextGame)
+        m.startNextGame()
+        assertEquals(Side.LEFT, m.currentGame.firstServer) // first server of game 1 was RIGHT
+    }
+
+    @Test
+    fun swapServerNotAllowedWhenGameOver() {
+        val m = Match(2)
+        win(m, Side.LEFT)
+        assertFalse(m.swapServer())
+    }
+
+    @Test
+    fun swappedServerSurvivesEncodeDecode() {
+        val m = Match(2, Side.LEFT)
+        m.addRally(Rally.RIGHT)
+        m.swapServer()
+        val copy = Match.decode(m.encode())!!
+        assertEquals(m.currentGame.server, copy.currentGame.server)
+        assertEquals(m.currentGame.firstServer, copy.currentGame.firstServer)
+    }
+
+    @Test
+    fun decodeOldFormatWithoutServerPrefix() {
+        val m = Match.decode("2|LEFT|LR;R")!!
+        assertEquals(2, m.games.size)
+        assertEquals(Side.LEFT, m.games[0].firstServer)
+        assertEquals(Side.RIGHT, m.games[1].firstServer)
+    }
 }

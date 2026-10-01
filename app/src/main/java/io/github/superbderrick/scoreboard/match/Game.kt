@@ -7,7 +7,11 @@ package io.github.superbderrick.scoreboard.match
  * A ball whose winner was not seen is stored as [Rally.UNKNOWN]. It still counts as a ball played,
  * so serve rotation stays correct, and it can be assigned to a player later with [resolve].
  */
-class Game(val firstServer: Side = Side.LEFT) {
+class Game(firstServer: Side = Side.LEFT) {
+    /** Who served the first ball of this game. Changing it changes who serves now. */
+    var firstServer: Side = firstServer
+        private set
+
     enum class Status {
         IN_PROGRESS,
         /** Unknown balls could decide the game: the scorer should resolve them. */
@@ -53,6 +57,13 @@ class Game(val firstServer: Side = Side.LEFT) {
             if (status != Status.OVER) return null
             return if (leftScore > rightScore) Side.LEFT else Side.RIGHT
         }
+
+    /** Switches who is serving now (the rest of the rotation follows). No-op once the game is over. */
+    fun swapServer(): Boolean {
+        if (status == Status.OVER) return false
+        firstServer = firstServer.other()
+        return true
+    }
 
     /** Returns false if the game is already over. */
     fun add(rally: Rally): Boolean {
@@ -127,6 +138,9 @@ class Game(val firstServer: Side = Side.LEFT) {
     }
 
     fun encode(): String = String(CharArray(balls.size) { balls[it].code })
+
+    /** Encoded with the first server, so a corrected server survives save/restore. */
+    fun encodeWithServer(): String = firstServer.name[0] + ":" + encode()
 
     companion object {
         const val WIN_SCORE = 11

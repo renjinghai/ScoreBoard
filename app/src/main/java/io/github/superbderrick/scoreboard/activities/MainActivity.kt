@@ -87,6 +87,9 @@ class MainActivity : Activity() {
         unknownButton.setOnClickListener { addRally(Rally.UNKNOWN) }
         findViewById<Button>(R.id.undoButton).setOnClickListener { undo() }
         findViewById<Button>(R.id.historyButton).setOnClickListener { showHistory() }
+        findViewById<Button>(R.id.swapServerButton).setOnClickListener {
+            if (match.swapServer()) refresh()
+        }
         findViewById<ImageButton>(R.id.timerResetButton).setOnClickListener { confirmReset() }
         findViewById<ImageButton>(R.id.settingButton).setOnClickListener {
             Utils.showDialog(this, "Game Settings", getString(R.string.gamesetting_guide))

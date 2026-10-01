@@ -30,7 +30,7 @@ class Match(val gamesToWin: Int, private val firstServerOfFirstGame: Side = Side
 
     fun startNextGame(): Boolean {
         if (!canStartNextGame) return false
-        gameList.add(Game(firstServerFor(gameList.size)))
+        gameList.add(Game(currentGame.firstServer.other()))
         return true
     }
 
@@ -42,11 +42,11 @@ class Match(val gamesToWin: Int, private val firstServerOfFirstGame: Side = Side
         return currentGame.undo() != null
     }
 
-    private fun firstServerFor(gameIndex: Int): Side =
-            if (gameIndex % 2 == 0) firstServerOfFirstGame else firstServerOfFirstGame.other()
+    /** Switches who is serving now; later games keep alternating from the corrected server. */
+    fun swapServer(): Boolean = currentGame.swapServer()
 
     fun encode(): String =
-            "$gamesToWin|${firstServerOfFirstGame.name}|" + gameList.joinToString(";") { it.encode() }
+            "$gamesToWin|${firstServerOfFirstGame.name}|" + gameList.joinToString(";") { it.encodeWithServer() }
 
     companion object {
         fun decode(s: String): Match? {
@@ -55,8 +55,13 @@ class Match(val gamesToWin: Int, private val firstServerOfFirstGame: Side = Side
                 if (parts.size != 3) return null
                 val match = Match(parts[0].toInt(), Side.valueOf(parts[1]))
                 match.gameList.clear()
+                var first = match.firstServerOfFirstGame
                 parts[2].split(";").forEachIndexed { i, g ->
-                    match.gameList.add(Game.decode(match.firstServerFor(i), g))
+                    // "L:LR?" carries the first server; a bare "LR?" (older saves) alternates.
+                    if (i > 0) first = first.other()
+                    val colon = g.indexOf(':')
+                    if (colon == 1) first = if (g[0] == 'L') Side.LEFT else Side.RIGHT
+                    match.gameList.add(Game.decode(first, g.substring(colon + 1)))
                 }
                 return match
             } catch (e: Exception) {
