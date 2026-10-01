@@ -29,8 +29,10 @@
                 android:layout_above="@+id/leftUserName"
                 android:layout_centerHorizontal="true"
                 android:text="@string/serving"
-                android:textColor="@color/colorDe"
-                android:textSize="20sp"
+                android:textSize="22sp"
+                android:padding="6dip"
+                android:textColor="#000000"
+                android:background="#FFC107"
                 android:textStyle="bold"
                 android:visibility="invisible" />
 
@@ -59,8 +61,10 @@
                 android:layout_above="@+id/rightUserEdit"
                 android:layout_centerHorizontal="true"
                 android:text="@string/serving"
-                android:textColor="@color/colorDe"
-                android:textSize="20sp"
+                android:textSize="22sp"
+                android:padding="6dip"
+                android:textColor="#000000"
+                android:background="#FFC107"
                 android:textStyle="bold"
                 android:visibility="invisible" />
 

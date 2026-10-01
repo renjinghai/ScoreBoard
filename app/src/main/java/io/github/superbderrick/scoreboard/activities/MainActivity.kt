@@ -43,6 +43,8 @@ class MainActivity : Activity() {
 
     private lateinit var match: Match
     private var clickedSettingButton = false
+    private var leftScoreColor = 0
+    private var rightScoreColor = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +54,8 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         bindViews()
         ThemeOperator(themeValue(), this).applyTheme()
-        leftServe.setTextColor(leftScoreText.currentTextColor)
-        rightServe.setTextColor(rightScoreText.currentTextColor)
+        leftScoreColor = leftScoreText.currentTextColor
+        rightScoreColor = rightScoreText.currentTextColor
         statusText.setTextColor(leftScoreText.currentTextColor)
 
         val saved = getSharedPreferences(PREFS_NAME, 0).getString(KEY_MATCH, null)
@@ -125,8 +127,17 @@ class MainActivity : Activity() {
         rightGamesText.text = match.rightGames.toString()
 
         val serving = game.status != Game.Status.OVER
-        leftServe.visibility = if (serving && game.server == Side.LEFT) View.VISIBLE else View.INVISIBLE
-        rightServe.visibility = if (serving && game.server == Side.RIGHT) View.VISIBLE else View.INVISIBLE
+        val leftServing = serving && game.server == Side.LEFT
+        val rightServing = serving && game.server == Side.RIGHT
+        val serveLabel = if (game.isDeuceServing) getString(R.string.serving)
+                else getString(R.string.serving_n, game.serveNumber)
+        leftServe.text = serveLabel
+        rightServe.text = serveLabel
+        leftServe.visibility = if (leftServing) View.VISIBLE else View.INVISIBLE
+        rightServe.visibility = if (rightServing) View.VISIBLE else View.INVISIBLE
+        // The serving side's score is shown in the highlight colour.
+        leftScoreText.setTextColor(if (leftServing) HIGHLIGHT_COLOR else leftScoreColor)
+        rightScoreText.setTextColor(if (rightServing) HIGHLIGHT_COLOR else rightScoreColor)
 
         val unknown = game.unknownCount
         statusText.text = if (unknown > 0) getString(R.string.pending_count, unknown) else ""
@@ -234,5 +245,6 @@ class MainActivity : Activity() {
     companion object {
         const val PREFS_NAME = "MyPrefsFile"
         private const val KEY_MATCH = "match"
+        private const val HIGHLIGHT_COLOR = 0xFFFFC107.toInt()
     }
 }

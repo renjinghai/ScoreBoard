@@ -31,6 +31,11 @@ class Game(val firstServer: Side = Side.LEFT) {
             return if (firstServes) firstServer else firstServer.other()
         }
 
+    /** 1 or 2: which of the server's two balls this is. Always 1 once the game is at 10:10 or later. */
+    val serveNumber: Int get() = if (balls.size >= DEUCE_BALLS) 1 else balls.size % 2 + 1
+
+    val isDeuceServing: Boolean get() = balls.size >= DEUCE_BALLS
+
     val status: Status
         get() {
             val l = leftScore

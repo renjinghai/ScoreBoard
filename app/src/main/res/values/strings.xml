@@ -17,6 +17,7 @@
 
 
     <string name="serving">● 发球</string>
+    <string name="serving_n">● 发球 %1$d/2</string>
     <string name="unknown_ball">没看清 ?</string>
     <string name="undo">撤销</string>
     <string name="history">记录</string>
